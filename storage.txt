@@ -1,0 +1,5 @@
+# TODO
+- todo function
+- when resizing, data lost
+- cursor Manage
+- page Manage

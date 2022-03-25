@@ -1,0 +1,20 @@
+{
+  "name": "termiro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "snake.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/howthep/termiro.git"
+  },
+  "type":"module",
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/howthep/termiro/issues"
+  },
+  "homepage": "https://github.com/howthep/termiro#readme"
+}
