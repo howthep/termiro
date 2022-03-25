@@ -1,5 +1,5 @@
 #! /usr/bin/env node
-import {center,right}from './lib.js'
+import {center,right}from './lib/text.js'
 import * as fs from 'fs'
 var {stdin,stdout} =process
 // const clog = console.log
