@@ -1,70 +1,72 @@
 #! /usr/bin/env node
 import {center,right}from './lib/text.js'
-import {cursorManege}from './lib/manage.js'
+import {cursorManage,pageManage}from './lib/manage.js'
 import * as fs from 'fs'
-var {stdin,stdout} =process
-// const clog = console.log
 
-const clog = str=> process.stdout.write(str)
-const clear = console.clear
-stdin.setRawMode(true)
-stdin.resume()
-stdin.setEncoding('utf8')
+let {stdin,stdout} =process;
+let pm = new pageManage();
+let TODO=null;
+let cursor = cursorManage();
 
-
-let page=reset([]);
-page.fill('='.repeat(width(-2)));
-
+const clog = str=> process.stdout.write(str);
+const clear = console.clear;
 const storage = 'storage.txt';
+
+stdin.setRawMode(true);
+stdin.resume();
+// stdin.setEncoding('utf8'); // no need
+
 fs.readFile(storage,(err,data)=>{
-	let lines=data.toString().trim().split('\n')
-	page.splice(0,lines.length,...lines)
+	let todos=data.toString().trim().split('\n')
+	TODO=todos
+		.map((item)=>item.replace(/#+/,"$&".cyan()))
+		.map((item)=>item.replace("-","o".red()))
+	cursor.move([0,0])
 })
 
-page.forEach((item,index,arr)=>{
-	// add line number
-	arr[index]=index.toString().padStart(2," ")+arr[index]
-})
 
-let cursor = cursorManege();
-cursor.xBound=(x)=>clamp(x,0,width(-1));
+cursor.xBound=(x)=>clamp(x,3,width(-1));
 cursor.yBound=(y)=>clamp(y,0,height(-1));
-cursor.afterMove=()=>{
+cursor.afterMove=(args)=>{
+	let [key="noKey",code=-1]=args;
+
+	pm.bottom(1,'>_:你好'.blue())
+	pm.bottom(0,`width:${width()},height:${height()},${code}-${key},cursor:(${cursor.value()})`.green())
+	TODO?TODO.forEach((item,index)=>{
+		//show color
+		pm.top(index,item)
+	}):1+1//1+1 is doing nothing
+
+	pm.print(lineNum)
+
 	stdout.cursorTo(...cursor.value())
 }
 
-TUI()
 cursor.move([0,0])
 
-function TUI(key='Nokey'){
-
-	page[height(-2)]='>:_'.green().grey()
-	page[height(-1)]=`width:${width()}, height:${height()}, key:${key.charCodeAt(0)}-${key} ${cursor.value()}`.green()
-	// let show=page.map((str)=> str.slice(0,width()) )
-	//it will slice my ANSI
-	clog(page.join('\n'))
-}
-
-stdin.on('data',function(key){
-	clear()
-	if(key==='\x03') {
-		process.exit()
+stdin.on('data',(key)=>{
+	let code =key.toString().codePointAt(0) 
+	if(code=='3') {
+		clear()
+		process.exit(0)
 	}
-	else if (key==='\x01'){
-		clog("trl+A")
-	}
-
-	TUI(key)
-	cursor.move(getDirection(key))
+	cursor.move(getDirection(key),key,code)
 })
 
 stdout.on('resize',()=>{
-	clear()
-	page=reset([]).fill('~')
-	TUI()
-	//clog('resize: '+stdout.getWindowSize().toString())
+	pm.resize().bottom(0,"footer")
+	pm.print(lineNum)
+	cursor.move([0,0])
 })
 
+function lineNum(arr){
+	let res = [...arr]
+	res.forEach((item,index,arr)=>{
+		let prefix =index.toString().padStart(2,' ') +' ' ;
+		arr[index]=prefix+item.slice(0,width(-prefix.length))
+	})
+	return res
+}
 
 function getDirection(key){
 	let x=0,y=0;
@@ -75,10 +77,6 @@ function getDirection(key){
 	return [x,y]
 }
 
-function reset(arr){
-	arr.length=height()
-	return arr.fill("")
-}
 function height(offset=0){
 	return process.stdout.getWindowSize()[1]+offset
 }
