@@ -1,7 +1,2 @@
 # TODO
-- todo function(style)
 - scroll function
-- chinese character occupy two space, so move cursor need direction and step
-- I set 'o' is blue and whole text is magenta, but...
-- editor buffer
-## End

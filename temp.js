@@ -5,10 +5,26 @@ function fact(x,res=1){
 }
 function test(input){
 	console.time('test')
-	clog(	fact(input))
+	clog(fact(input))
 	console.timeEnd('test')
 }
 
-test(10)
-test(20)
-//maybe nodejs have function cache 
+function getSomething(){
+	let r = 0;
+	return new Promise((resolve)=>{
+		setTimeout(()=>{
+		r=2;
+		resolve(r+1)},1000)
+	})
+}
+
+async function compute(){
+	clog(await getSomething())
+	// let x = await getSomething()
+	// clog('x: '+x)
+}
+// so when you want to match '\', '\\' can
+const str = 'ac \\asd';
+const regexp = /^ab+.*d$/;
+console.log(str.match(regexp))
+// compute()

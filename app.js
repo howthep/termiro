@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 import {center,right}from './lib/text.js'
 import {cursorManage,pageManage}from './lib/manage.js'
+import {readCache,writeCache}from './lib/cache.js'
 import * as fs from 'fs'
 
 let {stdin,stdout} =process;
@@ -31,9 +32,8 @@ cursor.afterMove=(args)=>{
 	let [key="noKey",code=-1]=args;
 
 	pm.bottom(1,'>_:你好'.blue())
-	pm.bottom(0,`width:${width()},height:${height()},${code}-${key},cursor:(${cursor.value()})`.green())
+	pm.bottom(0,`width:${width()},height:${height()},${code}-${key},cursor:(${cursor.value()}),cache:${readCache()}`.green())
 	TODO?TODO.forEach((item,index)=>{
-		//show color
 		pm.top(index,item)
 	}):1+1//1+1 is doing nothing
 
@@ -54,8 +54,7 @@ stdin.on('data',(key)=>{
 })
 
 stdout.on('resize',()=>{
-	pm.resize().bottom(0,"footer")
-	pm.print(lineNum)
+	pm.resize()
 	cursor.move([0,0])
 })
 
