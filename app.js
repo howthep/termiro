@@ -2,14 +2,18 @@
 import {center,right}from './lib/text.js'
 import {render,cursorManage,height,width}from './lib/manage.js'
 import {dailyArticle} from './lib/get.js'
+import {pipe,curry} from './lib/FP.js'
+
 import * as fs from 'fs'
 
 
 const {stdin,stdout} =process;
+const storage = 'storage.txt';
+
+const clear = console.clear;
 const cursor = cursorManage();
 const clog = str=> process.stdout.write(str);
-const clear = console.clear;
-const storage = 'storage.txt';
+const format_fit = pipe(formatArticle,fitPage)
 
 let TODO=null;
 let article = null;
@@ -26,18 +30,22 @@ init()
 
 dailyArticle().then(data=>{
 	let artc = data;
-	text=artc
+	text = artc
 	cursor.move([0,0])
 })
 
 cursor.xBound=(x)=>clamp(x,0,width(-1) );
 cursor.yBound=(y)=>clamp(y,0,height(-1) );
 cursor.afterMove=(args)=>{
+	let offset = cursor.value()[1]
 	let [key="noKey",code=-1]=args;
-	render(formatArticle(text),bottom)
-	// need to some optimize
+	bottom[1]=`key:${key},code:${code},corsor:${cursor.value()}`
+	let ftext = format_fit(text)
+		.slice(offset,height(offset-bottom.length))
+	render(ftext,bottom)
+
 	// you havan't use FP, why not?
-	stdout.cursorTo(...cursor.value())
+	// stdout.cursorTo(...cursor.value())
 }
 
 
@@ -54,7 +62,13 @@ function formatArticle(article){
 	const author=center(article[1].yellow())
 	const maintext = article.slice(2).map(item=>' '.repeat(4)+item)
 	let res = [title,author,...maintext]
-	return res;
+	return res
+}
+function fitPage(arr){
+	let res = [...arr]
+	return res
+		.map(text=>text.splitByWidth(width()))
+		.flat()
 }
 
 function getDirection(key){
@@ -81,8 +95,7 @@ function init(){
 	stdout.cursorTo(0,0)
 
 	stdout.on('resize',()=>{
-		// cursor.move([0,0])
-	// render(text,bottom)
-	render(formatArticle(text),bottom)
+		cursor.move([0,0])
+		// render(text,bottom)
 	})
 }

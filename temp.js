@@ -18,6 +18,13 @@ function getSomething(){
 	})
 }
 
+function foo(str) {
+	for (let chr of str){
+	console.log(chr) }
+}
+
+// foo('aaa我和你')
+
 async function compute(){
 	clog(await getSomething())
 	// let x = await getSomething()
@@ -26,5 +33,6 @@ async function compute(){
 // so when you want to match '\', '\\' can
 const str = 'ac \\asd';
 const regexp = /^ab+.*d$/;
-console.log(str.match(regexp))
+// console.log(str.match(regexp))
 // compute()
+

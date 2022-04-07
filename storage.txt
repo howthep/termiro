@@ -1,2 +1,3 @@
 # TODO
 - scroll function
+- get visualHeight and slice

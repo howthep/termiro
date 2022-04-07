@@ -63,7 +63,7 @@ set ttimeoutlen=100
 set visualbell
 set wildmenu
 set wildmode=list:longest,longest:full
-set window=46
+set window=47
 set winminheight=0
 set winminwidth=0
 let s:so_save = &g:so | let s:siso_save = &g:siso | setg so=0 siso=0 | setl so=-1 siso=-1
@@ -231,17 +231,17 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 58 - ((11 * winheight(0) + 22) / 45)
+let s:l = 5 - ((4 * winheight(0) + 22) / 45)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 58
-normal! 05|
+keepjumps 5
+normal! 0
 lcd /d/Desktop/web/server/termiro
 wincmd w
 argglobal
 if bufexists("/d/Desktop/web/server/termiro/lib/manage.js") | buffer /d/Desktop/web/server/termiro/lib/manage.js | else | edit /d/Desktop/web/server/termiro/lib/manage.js | endif
-balt /d/Desktop/web/server/termiro/lib/FP.js
+balt /d/Desktop/web/server/termiro/lib/get.js
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -375,16 +375,15 @@ setlocal wrapmargin=0
 normal! zo
 8
 normal! zo
-10
-normal! zo
-let s:l = 47 - ((44 * winheight(0) + 22) / 45)
+let s:l = 31 - ((2 * winheight(0) + 22) / 45)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 47
-normal! 0
-lcd /d/Desktop/web/server/termiro
+keepjumps 31
+normal! 017|
+lcd /d/Desktop/web/server/termiro/lib
 wincmd w
+2wincmd w
 exe 'vert 1resize ' . ((&columns * 87 + 87) / 174)
 exe 'vert 2resize ' . ((&columns * 86 + 87) / 174)
 tabnext
@@ -678,29 +677,32 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 12 - ((1 * winheight(0) + 22) / 45)
+42
+normal! zo
+42
+normal! zo
+let s:l = 43 - ((42 * winheight(0) + 22) / 45)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 12
-normal! 0
+keepjumps 43
+normal! 01|
 lcd /d/Desktop/web/server/termiro
 wincmd w
 exe 'vert 1resize ' . ((&columns * 87 + 87) / 174)
 exe 'vert 2resize ' . ((&columns * 86 + 87) / 174)
 tabnext 1
 set stal=1
-badd +4 /d/Desktop/web/server/termiro/app.js
+badd +32 /d/Desktop/web/server/termiro/app.js
 badd +1 /d/Desktop/web/server/termiro/lib
 badd +2 /d/Desktop/web/server/termiro/storage.txt
 badd +12 /d/Desktop/web/server/termiro/lib/get.js
-badd +27 /d/Desktop/web/server/termiro/lib/manage.js
+badd +1 /d/Desktop/web/server/termiro/lib/manage.js
 badd +72 /d/Desktop/web/server/termiro/lib/text.js
 badd +17 /d/Desktop/web/server/termiro/lib/cache.js
 badd +1 /d/Desktop/web/server/termiro/temp.js
 badd +1 /d/Temp/roseupam/cache.txt
 badd +1 /d/Desktop/web/server/termiro/ge
-badd +5 /d/Desktop/web/server/termiro/lib/FP.js
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
 endif
@@ -713,6 +715,7 @@ if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)
 endif
 let &g:so = s:so_save | let &g:siso = s:siso_save
+nohlsearch
 doautoall SessionLoadPost
 unlet SessionLoad
 " vim: set ft=vim :
