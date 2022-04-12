@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 import {center,right}from './lib/text.js'
-import {render,cursorManage,height,width}from './lib/manage.js'
+import {textBox,clamp,show,cursorManage,
+	height,width}from './lib/manage.js'
 import {dailyArticle} from './lib/get.js'
 import {pipe,curry} from './lib/FP.js'
 
@@ -13,80 +14,103 @@ const storage = 'storage.txt';
 const clear = console.clear;
 const cursor = cursorManage();
 const clog = str=> process.stdout.write(str);
-const format_fit = pipe(formatArticle,fitPage)
 
+let artlen=10000;
 let TODO=null;
-let article = null;
-let text=[],bottom = ['>_:'];
+let bottom = ['>_:'];
+let BoxArray=[];
+let articleBox = new textBox('article')
+let todoBox = new textBox('todo')
+	articleBox.format=formatArticle
+BoxArray.push(articleBox)
+BoxArray.push(todoBox)
+BoxArray.push(new textBox('text',{
+	origin:['hell','wolrd'],
+	bottom:['paradise','is','hell']
+})
+)
 
-init()
-// fs.readFile(storage,(err,data)=>{
-// 	let todos=data.toString().trim().split('\n')
-// 	TODO=todos
-// 		.map((item)=>item.replace(/#+/,"$&".cyan()))
-// 		.map((item)=>item.replace("-","o".red()))
-// 	cursor.move([0,0])
-// })
-
-dailyArticle().then(data=>{
-	let artc = data;
-	text = artc
-	cursor.move([0,0])
+INIT()
+fs.readFile(storage,(err,data)=>{
+	let todos=data.toString().trim().split('\n')
+	todoBox.origin=todos
+		.map((item)=>item.replace(/#+/,"$&".cyan()))
+		.map((item)=>item.replace("-","o".red()))
+	// formatTodo
+	todoBox.bottom=['TODO'.invert()]
 })
 
-cursor.xBound=(x)=>clamp(x,0,width(-1) );
-cursor.yBound=(y)=>clamp(y,0,height(-1) );
-cursor.afterMove=(args)=>{
-	let offset = cursor.value()[1]
+dailyArticle().then(article=>{
+	articleBox.origin=[...article]
+	cursor.move([0,0],'Article Get')
+}).catch(err=>{
+	articleBox.origin=['没有网络','No Internet']
+	cursor.move([0,0],'No Internet')
+})
+cursor.xBound=(x)=>x<0?x+BoxArray.length:x%BoxArray.length;
+cursor.yBound=(y)=>clamp(y,0,artlen-1);
+
+cursor.afterMove=loop;
+
+function loop(args){
+	let offset = cursor.y()
 	let [key="noKey",code=-1]=args;
-	bottom[1]=`key:${key},code:${code},corsor:${cursor.value()}`
-	let ftext = format_fit(text)
-		.slice(offset,height(offset-bottom.length))
-	render(ftext,bottom)
+	bottom[1]=
+		`key:${key},code:${code},corsor:${cursor.value()},artlen:${artlen}`
+	bottom[1]+=`${' '.repeat(width()-10-bottom[1].length)}${getHMStime()}`
+	articleBox.bottom=[...bottom.map(i=>i.blue())]
+	let currentBox = BoxArray[cursor.x()]
+	artlen=currentBox.render(offset,offset+height(-bottom.length))
 
 	// you havan't use FP, why not?
-	// stdout.cursorTo(...cursor.value())
+}
+function getHMStime(){
+	let today = new Date()
+	let time=[today.getHours(),today.getMinutes(),today.getSeconds()]
+	time = time
+		.map(i=>i+'')
+		.map(i=>i.padStart(2,'0'))
+	return time.join(':')
 }
 
-
 stdin.on('data',(key)=>{
-	let code =key.toString().codePointAt(0) 
-	if(code=='3') {
-		clear()
-		process.exit(0)
-	}
+	key = key.toString()[0]
+	let code =key.codePointAt(0) 
 	cursor.move(getDirection(key),key,code)
 })
-function formatArticle(article){
+function formatArticle(data){
+	let article=[...data]
 	const title=center(article[0].green())
 	const author=center(article[1].yellow())
 	const maintext = article.slice(2).map(item=>' '.repeat(4)+item)
 	let res = [title,author,...maintext]
 	return res
 }
-function fitPage(arr){
-	let res = [...arr]
-	return res
-		.map(text=>text.splitByWidth(width()))
-		.flat()
-}
 
 function getDirection(key){
 	let x=0,y=0;
-	if(key=='j')y+=1
-	if(key=='k')y-=1
-	if(key=='l')x+=1
-	if(key=='h')x-=1
+	const keyEvent={
+		j:()=>y+=1,
+		k:()=>y-=1,
+		d:()=>y+=5,
+		g:()=>y-=cursor.y(),
+		G:()=>y+=artlen-cursor.y()-height(-2),
+		u:()=>y-=5,
+		l:()=>x+=1,
+		h:()=>x-=1,
+		'\x09':()=>{
+			x+=1;
+			y=-cursor.y();
+		},
+		Q:()=>EXIT(),
+		'\x03':()=>EXIT(),
+	}
+	keyEvent.hasOwnProperty(key)?keyEvent[key]():1+1
 	return [x,y]
 }
 
-function clamp(x,min,max){
-	if (x<min)x=min;
-	if (x>max)x=max;
-	return x
-}
 
-function init(){
+function INIT(){
 	stdin.setRawMode(true);
 	stdin.resume();
 	// stdin.setEncoding('utf8'); // no need
@@ -95,7 +119,10 @@ function init(){
 	stdout.cursorTo(0,0)
 
 	stdout.on('resize',()=>{
-		cursor.move([0,0])
-		// render(text,bottom)
+		cursor.move([0,-1],'Resize')
 	})
+}
+function EXIT(){
+		clear()
+		process.exit(0)
 }

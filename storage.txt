@@ -1,3 +1,5 @@
 # TODO
-- scroll function
-- get visualHeight and slice
+- 30Hz render(), not rendered by key function
+- establish link format.length to cursor.yBound
+- a tabBar or multiWindow
+- when can i make rune raider?
