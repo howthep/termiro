@@ -7,6 +7,8 @@ cnoremap <C-P> <Up>
 inoremap <C-L> <Del>
 inoremap <C-U> u
 map Q gq
+vnoremap \) c(")
+vnoremap \( c(")
 nmap gcu <Plug>Commentary<Plug>Commentary
 nmap gcc <Plug>CommentaryLine
 omap gc <Plug>Commentary
@@ -49,6 +51,7 @@ set nolangremap
 set laststatus=2
 set nrformats=bin,hex
 set operatorfunc=<SNR>25_go
+set path=.,/usr/include,,,./**
 set ruler
 set runtimepath=~/.vim,~/.vim/pack/tpope/start/vim-commentary,/usr/share/vim/vimfiles,/usr/share/vim/vim82,/usr/share/vim/vimfiles/after,~/.vim/after
 set scrolloff=2
@@ -97,8 +100,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe 'vert 1resize ' . ((&columns * 85 + 87) / 174)
-exe 'vert 2resize ' . ((&columns * 88 + 87) / 174)
+exe 'vert 1resize ' . ((&columns * 87 + 87) / 174)
+exe 'vert 2resize ' . ((&columns * 86 + 87) / 174)
 argglobal
 balt storage.txt
 setlocal keymap=
@@ -181,7 +184,7 @@ set number
 setlocal number
 setlocal numberwidth=4
 setlocal omnifunc=javascriptcomplete#CompleteJS
-setlocal path=.,,
+setlocal path=.,,,./**
 setlocal nopreserveindent
 setlocal nopreviewwindow
 setlocal quoteescape=\\
@@ -234,38 +237,42 @@ setlocal wrapmargin=0
 normal! zo
 37
 normal! zo
-56
+51
 normal! zo
-59
+54
+normal! zo
+65
 normal! zo
 68
 normal! zo
-71
+79
 normal! zo
-91
+80
 normal! zo
-93
+83
 normal! zo
-102
+90
 normal! zo
-114
+94
 normal! zo
-122
+101
 normal! zo
-126
+103
 normal! zo
-126
+125
 normal! zo
-let s:l = 1 - ((0 * winheight(0) + 23) / 46)
+133
+normal! zo
+let s:l = 63 - ((42 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 1
-normal! 020|
+keepjumps 63
+normal! 0
 wincmd w
 argglobal
-if bufexists("lib/manage.js") | buffer lib/manage.js | else | edit lib/manage.js | endif
-balt lib/get.js
+if bufexists("lib/get.js") | buffer lib/get.js | else | edit lib/get.js | endif
+balt /d/Temp/roseupam/cache.txt
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -346,7 +353,7 @@ set number
 setlocal number
 setlocal numberwidth=4
 setlocal omnifunc=javascriptcomplete#CompleteJS
-setlocal path=.,,
+setlocal path=.,,,./**
 setlocal nopreserveindent
 setlocal nopreviewwindow
 setlocal quoteescape=\\
@@ -395,45 +402,38 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-9
+10
 normal! zo
-11
+12
 normal! zo
-15
+16
 normal! zo
-20
+21
 normal! zo
-32
+21
 normal! zo
-40
+43
 normal! zo
-41
+43
 normal! zo
-47
+44
 normal! zo
-50
-normal! zo
-58
-normal! zo
-68
-normal! zo
-70
-normal! zo
-let s:l = 17 - ((16 * winheight(0) + 23) / 46)
+let s:l = 47 - ((46 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 17
-normal! 015|
+keepjumps 47
+normal! 014|
 wincmd w
-exe 'vert 1resize ' . ((&columns * 85 + 87) / 174)
-exe 'vert 2resize ' . ((&columns * 88 + 87) / 174)
+exe 'vert 1resize ' . ((&columns * 87 + 87) / 174)
+exe 'vert 2resize ' . ((&columns * 86 + 87) / 174)
 tabnext 1
-badd +1 app.js
-badd +1 /d/Desktop/web/server/termiro/./lib/text.js
-badd +62 lib/manage.js
-badd +2 storage.txt
-badd +1 lib/get.js
+badd +50 app.js
+badd +6 storage.txt
+badd +83 /d/Desktop/web/server/termiro/./lib/text.js
+badd +91 lib/manage.js
+badd +2 lib/get.js
+badd +1 /d/Temp/roseupam/cache.txt
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
 endif
@@ -446,7 +446,6 @@ if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)
 endif
 let &g:so = s:so_save | let &g:siso = s:siso_save
-nohlsearch
 doautoall SessionLoadPost
 unlet SessionLoad
 " vim: set ft=vim :

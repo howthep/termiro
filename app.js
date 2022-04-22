@@ -1,12 +1,11 @@
 #! /usr/bin/env node
-import {center,right}from './lib/text.js'
+import {center,align}from './lib/text.js'
 import {textBox,clamp,show,cursorManage,
-	height,width}from './lib/manage.js'
+	height,width} from './lib/manage.js'
 import {dailyArticle} from './lib/get.js'
 import {pipe,curry} from './lib/FP.js'
 
 import * as fs from 'fs'
-
 
 const {stdin,stdout} =process;
 const storage = 'storage.txt';
@@ -16,12 +15,12 @@ const cursor = cursorManage();
 const clog = str=> process.stdout.write(str);
 
 let artlen=10000;
-let TODO=null;
-let bottom = ['>_:'];
-let BoxArray=[];
-let articleBox = new textBox('article')
+let bottom = [' >_:'];
 let todoBox = new textBox('todo')
-	articleBox.format=formatArticle
+let articleBox = new textBox('article')
+articleBox.format=formatArticle
+
+let BoxArray=[];
 BoxArray.push(articleBox)
 BoxArray.push(todoBox)
 BoxArray.push(new textBox('text',{
@@ -40,13 +39,8 @@ fs.readFile(storage,(err,data)=>{
 	todoBox.bottom=['TODO'.invert()]
 })
 
-dailyArticle().then(article=>{
-	articleBox.origin=[...article]
-	cursor.move([0,0],'Article Get')
-}).catch(err=>{
-	articleBox.origin=['没有网络','No Internet']
-	cursor.move([0,0],'No Internet')
-})
+getArticle()
+
 cursor.xBound=(x)=>x<0?x+BoxArray.length:x%BoxArray.length;
 cursor.yBound=(y)=>clamp(y,0,artlen-1);
 
@@ -55,10 +49,12 @@ cursor.afterMove=loop;
 function loop(args){
 	let offset = cursor.y()
 	let [key="noKey",code=-1]=args;
-	bottom[1]=
-		`key:${key},code:${code},corsor:${cursor.value()},artlen:${artlen}`
-	bottom[1]+=`${' '.repeat(width()-10-bottom[1].length)}${getHMStime()}`
-	articleBox.bottom=[...bottom.map(i=>i.blue())]
+	bottom[1]=align(
+		` key:${key},code:${code},corsor:${cursor.value()},artlen:${artlen}`,
+		'',
+		getHMStime()+'  '
+	);
+	articleBox.bottom=[...bottom.map(i=>i.invert().blue())]
 	let currentBox = BoxArray[cursor.x()]
 	artlen=currentBox.render(offset,offset+height(-bottom.length))
 
@@ -68,8 +64,7 @@ function getHMStime(){
 	let today = new Date()
 	let time=[today.getHours(),today.getMinutes(),today.getSeconds()]
 	time = time
-		.map(i=>i+'')
-		.map(i=>i.padStart(2,'0'))
+		.map(i=>(i+'').padStart(2,'0'))
 	return time.join(':')
 }
 
@@ -78,11 +73,25 @@ stdin.on('data',(key)=>{
 	let code =key.codePointAt(0) 
 	cursor.move(getDirection(key),key,code)
 })
+
+function getArticle(i=1){
+	dailyArticle().then(article=>{
+		articleBox.origin=[...article]
+		cursor.move([0,0],'Article Get')
+	}).catch(err=>{
+		articleBox.origin=[`没有网络`,`No Internet`].map(item=>item+'... '+i)
+		cursor.move([0,0],'No Internet'+i)
+		setTimeout(getArticle,2000,i+1)
+	})
+}
+
 function formatArticle(data){
 	let article=[...data]
 	const title=center(article[0].green())
 	const author=center(article[1].yellow())
-	const maintext = article.slice(2).map(item=>' '.repeat(4)+item)
+	const maintext = article.slice(2)
+		.map(item=>[' '.repeat(4)+item,' '])
+		.flat()
 	let res = [title,author,...maintext]
 	return res
 }
@@ -99,6 +108,7 @@ function getDirection(key){
 		l:()=>x+=1,
 		h:()=>x-=1,
 		'\x09':()=>{
+			//Tab
 			x+=1;
 			y=-cursor.y();
 		},
@@ -123,6 +133,6 @@ function INIT(){
 	})
 }
 function EXIT(){
-		clear()
-		process.exit(0)
+	clear()
+	process.exit(0)
 }
