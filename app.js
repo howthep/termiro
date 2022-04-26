@@ -92,6 +92,7 @@ function formatArticle(data){
 	const maintext = article.slice(2)
 		.map(item=>[' '.repeat(4)+item,' '])
 		.flat()
+		.slice(0,-1)
 	let res = [title,author,...maintext]
 	return res
 }
